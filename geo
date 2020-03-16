@@ -22,7 +22,7 @@ NOCOLOR="\033[0m"
 
 ## Finds WAN IP via dig command using opendns. Captures IP address only.
 if [ ! -f "/usr/local/bin/jq" ]; then
-  echo "you need to install /usr/local/bin/jq to run this script"
+  echo -e "${RED}you need to install /usr/local/bin/jq to run this script${NOCOLOR}"
   exit 1
 fi
 
@@ -39,10 +39,10 @@ ipJson=$(curl -s -X GET https://cli.fyi/"$wanIP")
 
 if echo -e "$ipJson" | grep "error" &> /dev/null; then
   echo -e "$ipJson" | jq .error
-  echo -e "Make sure to enter a valid public IP address.\nRun command on its own to use your own WAN IP address."
+  echo -e "${RED}Make sure to enter a valid public IP address.\nRun command on its own to use your current WAN IP address.${NOCOLOR}"
   exit 1
 elif [ "$(echo -e "$ipJson" | jq .data.isIpInPrivateRange)" = "true" ]; then
-  echo -e "$wanIP is a private IP address. Know your RFC1918!"
+  echo -e "${RED}$wanIP is a private IP address. Know your RFC1918!${NOCOLOR}"
   exit 1
 else
   ## Pipe output to python allows for manupulation of GET results json data. The print obj part is printing the nested object by using two square bracketed values.
@@ -72,11 +72,11 @@ select opt in "${options[@]}"
 do
   case $opt in
     "$googleMap")
-      echo "Opening Google Maps" && open "$googleMap"
+      echo -e "${GREEN}Opening Google Maps${NOCOLOR}" && open "$googleMap"
       break
       ;;
     "$virusTotal")
-      echo "Opening Virus Total" && open "$virusTotal"
+      echo -e "${GREEN}Opening Virus Total${NOCOLOR}" && open "$virusTotal"
       break
       ;;
     "Quit")
