@@ -15,16 +15,7 @@
 ###
 
 ##===========================VARIABLES============================##
-## Setup the colour codes.
-RED="\033[1;31m"
-GREEN="\033[1;32m"
-NOCOLOR="\033[0m"
-
 ## Finds WAN IP via dig command using opendns. Captures IP address only.
-if [ ! -f "/usr/local/bin/jq" ]; then
-  echo "you need to install /usr/local/bin/jq to run this script"
-  exit 1
-fi
 
 if test -z "$1"; then
   ##Variable is empty, will set your current WAN IP
@@ -37,36 +28,22 @@ fi
 ## I have no affiliate to cli.fyi and this script will break if website is down.
 ipJson=$(curl -s -X GET https://cli.fyi/"$wanIP")
 
-if echo -e "$ipJson" | grep "error" &> /dev/null; then
-  echo -e "$ipJson" | jq .error
-  echo -e "Make sure to enter a valid public IP address.\nRun command on its own to use your own WAN IP address."
-  exit 1
-elif [ "$(echo -e "$ipJson" | jq .data.isIpInPrivateRange)" = "true" ]; then
-  echo -e "$wanIP is a private IP address. Know your RFC1918!"
-  exit 1
-else
-  ## Pipe output to python allows for manupulation of GET results json data. The print obj part is printing the nested object by using two square bracketed values.
-  echo -e "\n"
-  echo -e "IP Address: \t$wanIP"
-  echo -e "Country: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["country"]')"
-  echo -e "continent: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["continent"]')"
-  echo -e "Organisation: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["organisation"]')"
-  latitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["latitude"]')")
-  longitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["longitude"]')")
-  echo -e "PTR: \t\t$(dig -x "$wanIP" +short)"
-  echo -e "\n"
-
-fi
-
-
-##Create a couple more variables:
+## Pipe output to python allows for manupulation of GET results json data. The print obj part is printing the nested object by using two square bracketed values.
+echo -e "\n"
+echo -e "IP Address: \t$wanIP"
+echo -e "Country: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["country"]')"
+echo -e "continent: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["continent"]')"
+echo -e "Organisation: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["organisation"]')"
+latitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["latitude"]')")
+longitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["longitude"]')")
+echo -e "PTR: \t\t$(dig -x "$wanIP" +short)"
+echo -e "\n"
 googleMap="https://www.google.com/maps/search/?api=1&query=$latitude,$longitude&z=13"
 #googleMap="https://maps.google.com/?ie=UTF8&hq=&ll=$longitude,$latitude&z=13"
 virusTotal="https://www.virustotal.com/gui/ip-address/$wanIP"
 
-##Display the interactive menu:
 ##https://askubuntu.com/questions/1705/how-can-i-create-a-select-menu-in-a-shell-script
-PS3="Type Number to open Website: "
+PS3='Type Number to open Website: '
 options=("$googleMap" "$virusTotal" "Quit")
 select opt in "${options[@]}"
 do
@@ -82,7 +59,7 @@ do
     "Quit")
       break
       ;;
-    *) echo -e "${RED}$REPLY is not a valid option${NOCOLOR}";;
+    *) echo "$REPLY is not a valid option";;
   esac
 done
 
