@@ -10,6 +10,3 @@ e.g: https://apple.stackexchange.com/questions/99788/os-x-create-a-personal-bin-
 Type geo in terminal, hit return.
 If checkin a specific IP address, type: geo 8.8.8.8
 
-
-# TO DO:
-Error handling if IP address is wrong or hostname typed.
