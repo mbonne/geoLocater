@@ -20,12 +20,13 @@ RED="\033[1;31m"
 GREEN="\033[1;32m"
 NOCOLOR="\033[0m"
 
-## Finds WAN IP via dig command using opendns. Captures IP address only.
+## Check if you have jq installed. Can do this via $ brew install jq
 if [ ! -f "/usr/local/bin/jq" ]; then
   echo -e "${RED}you need to install /usr/local/bin/jq to run this script${NOCOLOR}"
   exit 1
 fi
 
+## Finds WAN IP via dig command using opendns. Captures IP address only.
 if test -z "$1"; then
   ##Variable is empty, will set your current WAN IP
   wanIP=$(/usr/bin/dig @resolver1.opendns.com ANY myip.opendns.com +short)
