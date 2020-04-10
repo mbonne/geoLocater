@@ -12,6 +12,7 @@
 ##                  https://www.programiz.com/python-programming/nested-dictionary
 ##                  https://stackoverflow.com/questions/50843960/curl-json-to-output-only-one-object
 ##                  https://stedolan.github.io/jq/tutorial/
+##                  https://stackoverflow.com/questions/18709962/regex-matching-in-a-bash-if-statement
 ###
 
 ##===========================VARIABLES============================##
@@ -26,14 +27,24 @@ if [ ! -f "/usr/local/bin/jq" ]; then
   exit 1
 fi
 
+pat="[a-zA-Z]"
 ## Finds WAN IP via dig command using opendns. Captures IP address only.
 if test -z "$1"; then
   ##Variable is empty, will set your current WAN IP
   wanIP=$(/usr/bin/dig @resolver1.opendns.com ANY myip.opendns.com +short)
+elif [[ $1 =~ $pat ]]; then
+  domainName=$(/usr/bin/dig "$1" +short)
+  echo -e "hostname has the following IP:"
+  echo -e "$domainName"
+  wanIP=$(echo -e "$domainName" | head -1)
+  if [[ -z $wanIP ]]; then
+    echo -e "${RED}$1 could not be resolved${NOCOLOR}"
+    exit 1
+  fi
 else
-  ##Variable is NOT empty, will use the IP address specified as first argument when running command
   wanIP=$1
 fi
+
 
 ## I have no affiliate to cli.fyi and this script will break if website is down.
 ipJson=$(curl -s -X GET https://cli.fyi/"$wanIP")
@@ -43,17 +54,30 @@ if echo -e "$ipJson" | grep "error" &> /dev/null; then
   echo -e "${RED}Make sure to enter a valid public IP address.\nRun command on its own to use your current WAN IP address.${NOCOLOR}"
   exit 1
 elif [ "$(echo -e "$ipJson" | jq .data.isIpInPrivateRange)" = "true" ]; then
-  echo -e "${RED}$wanIP is a private IP address. Know your RFC1918!${NOCOLOR}"
+  echo -e "${RED}$wanIP Cannot geo locate a private IP address. Know your RFC1918!${NOCOLOR}"
   exit 1
+#elif [ "$(echo -e "$ipJson" | jq .data.dns)" = "true" ]; then
+#  echo -e "${RED}You targeted a domain name. Pick an IP address from below.${NOCOLOR}"
+#  echo -e "$ipJson"
+#  exit 1
 else
+
+
+
+
   ## Pipe output to python allows for manupulation of GET results json data. The print obj part is printing the nested object by using two square bracketed values.
   echo -e "\n"
   echo -e "IP Address: \t$wanIP"
-  echo -e "Country: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["country"]')"
-  echo -e "continent: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["continent"]')"
-  echo -e "Organisation: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["organisation"]')"
-  latitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["latitude"]')")
-  longitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["longitude"]')")
+  echo -e "Country: \t$(echo "$ipJson" | jq -r .data.country)"
+  #echo -e "Country: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["country"]')"
+  echo -e "Country: \t$(echo "$ipJson" | jq -r .data.continent)"
+  #echo -e "continent: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["continent"]')"
+  echo -e "Country: \t$(echo "$ipJson" | jq -r .data.organisation)"
+  #echo -e "Organisation: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["organisation"]')"
+  latitude=$(echo -e "$(echo "$ipJson" | jq -r .data.latitude)")
+  longitude=$(echo -e "$(echo "$ipJson" | jq -r .data.longitude)")
+  #latitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["latitude"]')")
+  #longitude=$(echo -e "$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["longitude"]')")
   echo -e "PTR: \t\t$(dig -x "$wanIP" +short)"
   echo -e "\n"
 
