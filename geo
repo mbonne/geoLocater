@@ -50,10 +50,11 @@ fi
 ipJson=$(curl -s -X GET https://cli.fyi/"$wanIP")
 
 if echo -e "$ipJson" | grep "error" &> /dev/null; then
-  echo -e "$ipJson" | jq .error
-  echo -e "${RED}Make sure to enter a valid public IP address.\nRun command on its own to use your current WAN IP address.${NOCOLOR}"
+  echo -e "${RED}"
+  echo -e "$ipJson" | jq -r .error
+  echo -e "${NOCOLOR}Make sure to enter a valid public IP address.\nRun command on its own to use your current WAN IP address."
   exit 1
-elif [ "$(echo -e "$ipJson" | jq .data.isIpInPrivateRange)" = "true" ]; then
+elif [ "$(echo -e "$ipJson" | jq -r .data.isIpInPrivateRange)" = "true" ]; then
   echo -e "${RED}$wanIP Cannot geo locate a private IP address. Know your RFC1918!${NOCOLOR}"
   exit 1
 #elif [ "$(echo -e "$ipJson" | jq .data.dns)" = "true" ]; then
