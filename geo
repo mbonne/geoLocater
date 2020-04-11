@@ -71,9 +71,9 @@ else
   echo -e "IP Address: \t$wanIP"
   echo -e "Country: \t$(echo "$ipJson" | jq -r .data.country)"
   #echo -e "Country: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["country"]')"
-  echo -e "Country: \t$(echo "$ipJson" | jq -r .data.continent)"
+  echo -e "Continent: \t$(echo "$ipJson" | jq -r .data.continent)"
   #echo -e "continent: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["continent"]')"
-  echo -e "Country: \t$(echo "$ipJson" | jq -r .data.organisation)"
+  echo -e "Organisation: \t$(echo "$ipJson" | jq -r .data.organisation)"
   #echo -e "Organisation: \t$(echo "$ipJson" | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["organisation"]')"
   latitude=$(echo -e "$(echo "$ipJson" | jq -r .data.latitude)")
   longitude=$(echo -e "$(echo "$ipJson" | jq -r .data.longitude)")
