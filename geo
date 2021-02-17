@@ -31,7 +31,7 @@ pat="[a-zA-Z]"
 ## Finds WAN IP via dig command using opendns. Captures IP address only.
 if test -z "$1"; then
   ##Variable is empty, will set your current WAN IP
-  wanIP=$(/usr/bin/dig @resolver1.opendns.com ANY myip.opendns.com +short)
+  wanIP=$(/usr/bin/dig +short myip.opendns.com @resolver1.opendns.com)
 elif [[ $1 =~ $pat ]]; then
   domainName=$(/usr/bin/dig "$1" +short)
   echo -e "hostname has the following IP:"
